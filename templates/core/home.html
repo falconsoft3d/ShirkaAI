@@ -17,6 +17,19 @@
     </div>
     <div class="flex items-center gap-4">
       {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}"
+           class="flex items-center gap-2.5 group rounded-lg px-2 py-1 hover:bg-white/5 transition-colors">
+          {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}"
+                 class="h-7 w-7 rounded-full object-cover ring-1 ring-white/10">
+          {% else %}
+            <div class="h-7 w-7 rounded-full bg-gradient-to-br from-brand-500 to-purple-600
+                        flex items-center justify-center text-xs font-bold text-white shrink-0">
+              {{ user.username|first|upper }}
+            </div>
+          {% endif %}
+          <span class="text-sm font-medium text-white">{{ user.username }}</span>
+        </a>
         <a href="{% url 'dashboard' %}"
            class="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium transition-colors">
           Dashboard →
@@ -171,6 +184,72 @@
       </div>
     </div>
   </section>
+
+  <!-- MODELOS PÚBLICOS -->
+  {% if public_models %}
+  <section id="prueba-ia" class="py-24 border-t border-white/5">
+    <div class="mx-auto max-w-7xl px-6">
+      <div class="text-center mb-12 space-y-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-green-700/40
+                    bg-green-950/40 text-green-400 text-xs font-medium uppercase tracking-wide">
+          <span class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></span>
+          En vivo
+        </div>
+        <h2 class="text-3xl lg:text-4xl font-bold text-white">Prueba la IA ahora</h2>
+        <p class="text-gray-400 max-w-xl mx-auto">
+          Estos modelos están disponibles para cualquier visitante. No necesitas cuenta.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {% for m in public_models %}
+        <a href="{% url 'public_chat' m.pk %}"
+           class="group flex flex-col gap-4 p-6 rounded-2xl border border-white/8
+                  bg-gray-900/70 hover:border-green-500/40 hover:bg-gray-900 transition-all">
+          <div class="flex items-start justify-between">
+            <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-green-500 to-brand-600
+                        flex items-center justify-center shrink-0">
+              <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+            </div>
+            <span class="flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full
+                         bg-green-500/10 border border-green-500/20 text-green-400">
+              <span class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></span>
+              Disponible
+            </span>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white group-hover:text-green-300 transition-colors">
+              {{ m.name }}
+            </h3>
+            {% if m.description %}
+            <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ m.description }}</p>
+            {% endif %}
+            <div class="flex flex-wrap gap-1.5 mt-3">
+              {% if m.size_label %}
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-700/60 text-gray-400">{{ m.size_label }}</span>
+              {% endif %}
+              {% for tag in m.tags_list %}
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="mt-auto flex items-center gap-2 text-sm font-semibold text-green-400
+                      group-hover:text-green-300 transition-colors">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+            Abrir chat →
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
 </main>
 
 <!-- FOOTER -->

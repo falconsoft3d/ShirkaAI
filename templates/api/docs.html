@@ -1,0 +1,189 @@
+{% extends 'layouts/app.html' %}
+{% block title %}API Docs – ShirkaAI{% endblock %}
+
+{% block app_content %}
+<header class="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
+  <div>
+    <h1 class="text-base font-semibold text-white">Documentación de la API</h1>
+    <p class="text-xs text-gray-500">ShirkaAI es compatible con el formato de la API de OpenAI</p>
+  </div>
+  <a href="{% url 'api:tokens' %}"
+     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-brand-400
+            border border-brand-500/20 hover:bg-brand-500/10 transition-colors">
+    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+    </svg>
+    Mis tokens
+  </a>
+</header>
+
+<main class="flex-1 overflow-y-auto p-6">
+<div class="max-w-3xl mx-auto space-y-10">
+
+  <!-- Base URL -->
+  <section class="space-y-3">
+    <h2 class="text-sm font-bold text-white border-b border-white/8 pb-2">Base URL</h2>
+    <div class="flex items-center gap-2">
+      <code class="flex-1 px-4 py-2.5 rounded-lg bg-gray-900 border border-white/8 text-sm text-brand-300 font-mono">{{ base_url }}/v1</code>
+      <button onclick="navigator.clipboard.writeText('{{ base_url }}/v1');this.textContent='✓'"
+              class="px-3 py-2 text-xs rounded-lg bg-gray-800 border border-white/8 text-gray-400
+                     hover:text-white transition-colors">Copiar</button>
+    </div>
+  </section>
+
+  <!-- Autenticación -->
+  <section class="space-y-3">
+    <h2 class="text-sm font-bold text-white border-b border-white/8 pb-2">Autenticación</h2>
+    <p class="text-sm text-gray-400">Incluye tu token en el header <code class="text-brand-300 font-mono text-xs">Authorization</code> de cada solicitud:</p>
+    <pre class="rounded-xl bg-gray-900 border border-white/8 p-4 text-xs text-gray-300 font-mono overflow-x-auto"><span class="text-gray-600">Authorization:</span> Bearer sk-shirka-&lt;tu-token&gt;</pre>
+    <p class="text-xs text-gray-600">Genera tus tokens en <a href="{% url 'api:tokens' %}" class="text-brand-400 hover:underline">API → Tokens</a>.</p>
+  </section>
+
+  <!-- GET /v1/models -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-white border-b border-white/8 pb-2">
+      <span class="text-green-400 font-mono text-xs mr-2 px-2 py-0.5 rounded bg-green-500/10 border border-green-500/20">GET</span>
+      /v1/models
+    </h2>
+    <p class="text-sm text-gray-400">Lista los modelos descargados y listos en ShirkaAI.</p>
+
+    <div class="space-y-2">
+      <p class="text-xs text-gray-600 uppercase tracking-wider font-semibold">Ejemplo</p>
+      <pre class="rounded-xl bg-gray-900 border border-white/8 p-4 text-xs text-gray-300 font-mono overflow-x-auto">curl {{ base_url }}/v1/models \
+  -H "Authorization: Bearer sk-shirka-&lt;tu-token&gt;"</pre>
+    </div>
+
+    <div class="space-y-2">
+      <p class="text-xs text-gray-600 uppercase tracking-wider font-semibold">Respuesta</p>
+      <pre class="rounded-xl bg-gray-900 border border-white/8 p-4 text-xs text-gray-300 font-mono overflow-x-auto">{
+  "object": "list",
+  "data": [
+    {
+      "id": "qwen2.5-0.5b",
+      "object": "model",
+      "created": 1716000000,
+      "owned_by": "shirkaai",
+      "name": "Qwen 2.5 - 0.5B",
+      "status": "active"
+    }
+  ]
+}</pre>
+    </div>
+  </section>
+
+  <!-- POST /v1/chat/completions -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-white border-b border-white/8 pb-2">
+      <span class="text-blue-400 font-mono text-xs mr-2 px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">POST</span>
+      /v1/chat/completions
+    </h2>
+    <p class="text-sm text-gray-400">Genera una respuesta de chat. Mismo formato que OpenAI.</p>
+
+    <div class="space-y-2">
+      <p class="text-xs text-gray-600 uppercase tracking-wider font-semibold">Body (JSON)</p>
+      <div class="rounded-xl bg-gray-900 border border-white/8 overflow-hidden">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b border-white/8">
+              <th class="text-left px-4 py-2.5 text-gray-500 font-semibold">Campo</th>
+              <th class="text-left px-4 py-2.5 text-gray-500 font-semibold">Tipo</th>
+              <th class="text-left px-4 py-2.5 text-gray-500 font-semibold">Descripción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr><td class="px-4 py-2.5 font-mono text-brand-300">model</td><td class="px-4 py-2.5 text-gray-500">string</td><td class="px-4 py-2.5 text-gray-400">ID del modelo (e.g. <code class="text-gray-300">qwen2.5-0.5b</code>). Si no existe, se usa el modelo activo.</td></tr>
+            <tr><td class="px-4 py-2.5 font-mono text-brand-300">messages</td><td class="px-4 py-2.5 text-gray-500">array</td><td class="px-4 py-2.5 text-gray-400"><strong class="text-white">Requerido.</strong> Lista de mensajes <code class="text-gray-300">{role, content}</code>. Roles: <code class="text-gray-300">system</code>, <code class="text-gray-300">user</code>, <code class="text-gray-300">assistant</code>.</td></tr>
+            <tr><td class="px-4 py-2.5 font-mono text-brand-300">max_tokens</td><td class="px-4 py-2.5 text-gray-500">integer</td><td class="px-4 py-2.5 text-gray-400">Máximo de tokens a generar. Default: <code class="text-gray-300">512</code>.</td></tr>
+            <tr><td class="px-4 py-2.5 font-mono text-brand-300">temperature</td><td class="px-4 py-2.5 text-gray-500">float</td><td class="px-4 py-2.5 text-gray-400">Creatividad (0.0 – 2.0). Default: <code class="text-gray-300">0.7</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <p class="text-xs text-gray-600 uppercase tracking-wider font-semibold">Ejemplo curl</p>
+      <pre class="rounded-xl bg-gray-900 border border-white/8 p-4 text-xs text-gray-300 font-mono overflow-x-auto">curl {{ base_url }}/v1/chat/completions \
+  -H "Authorization: Bearer sk-shirka-&lt;tu-token&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen2.5-0.5b",
+    "messages": [
+      {"role": "system", "content": "Eres un asistente útil."},
+      {"role": "user",   "content": "¿Cuál es la capital de México?"}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 256
+  }'</pre>
+    </div>
+
+    <div class="space-y-2">
+      <p class="text-xs text-gray-600 uppercase tracking-wider font-semibold">Respuesta</p>
+      <pre class="rounded-xl bg-gray-900 border border-white/8 p-4 text-xs text-gray-300 font-mono overflow-x-auto">{
+  "id": "chatcmpl-a1b2c3d4e5f6",
+  "object": "chat.completion",
+  "created": 1716000000,
+  "model": "qwen2.5-0.5b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "La capital de México es Ciudad de México."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 18,
+    "completion_tokens": 9,
+    "total_tokens": 27
+  }
+}</pre>
+    </div>
+  </section>
+
+  <!-- Python SDK -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-white border-b border-white/8 pb-2">Uso con el SDK oficial de OpenAI</h2>
+    <p class="text-sm text-gray-400">Cambia sólo el <code class="text-brand-300 font-mono text-xs">base_url</code> — el resto del código es idéntico:</p>
+    <pre class="rounded-xl bg-gray-900 border border-white/8 p-4 text-xs text-gray-300 font-mono overflow-x-auto"><span class="text-blue-400">from</span> openai <span class="text-blue-400">import</span> OpenAI
+
+client = OpenAI(
+    api_key=<span class="text-green-300">"sk-shirka-&lt;tu-token&gt;"</span>,
+    base_url=<span class="text-green-300">"{{ base_url }}/v1"</span>,
+)
+
+response = client.chat.completions.create(
+    model=<span class="text-green-300">"qwen2.5-0.5b"</span>,
+    messages=[
+        {<span class="text-green-300">"role"</span>: <span class="text-green-300">"user"</span>, <span class="text-green-300">"content"</span>: <span class="text-green-300">"Hola, ¿cómo estás?"</span>},
+    ],
+)
+<span class="text-blue-400">print</span>(response.choices[0].message.content)</pre>
+  </section>
+
+  <!-- Códigos de error -->
+  <section class="space-y-3">
+    <h2 class="text-sm font-bold text-white border-b border-white/8 pb-2">Códigos de error</h2>
+    <div class="rounded-xl bg-gray-900 border border-white/8 overflow-hidden">
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="border-b border-white/8">
+            <th class="text-left px-4 py-2.5 text-gray-500 font-semibold">Código</th>
+            <th class="text-left px-4 py-2.5 text-gray-500 font-semibold">Significado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          <tr><td class="px-4 py-2.5 font-mono text-red-400">401</td><td class="px-4 py-2.5 text-gray-400">Token inválido o revocado.</td></tr>
+          <tr><td class="px-4 py-2.5 font-mono text-yellow-400">400</td><td class="px-4 py-2.5 text-gray-400">Cuerpo JSON inválido o falta el campo <code class="text-gray-300">messages</code>.</td></tr>
+          <tr><td class="px-4 py-2.5 font-mono text-orange-400">404</td><td class="px-4 py-2.5 text-gray-400">Modelo no encontrado o no está listo.</td></tr>
+          <tr><td class="px-4 py-2.5 font-mono text-red-400">500</td><td class="px-4 py-2.5 text-gray-400">Error interno al generar la respuesta.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+</main>
+{% endblock %}

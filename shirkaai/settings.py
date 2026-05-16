@@ -38,6 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'llm_models',
+    'projects',
+    'chat',
+    'api',
+    'docs',
+    'tasks',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +123,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Auth
 LOGIN_URL = '/login/'

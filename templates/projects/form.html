@@ -1,0 +1,68 @@
+{% extends 'layouts/page_form.html' %}
+
+{% block back_url %}{% url 'projects:list' %}{% endblock %}
+{% block page_title %}Nuevo proyecto{% endblock %}
+{% block page_subtitle %}Configura un nuevo espacio de trabajo con IA{% endblock %}
+
+{% block form_content %}
+<form method="post" action="{% url 'projects:create' %}" class="space-y-5">
+  {% csrf_token %}
+
+  <div>
+    <label class="block text-xs text-gray-400 mb-1.5 font-medium">
+      Nombre <span class="text-red-400">*</span>
+    </label>
+    <input type="text" name="name" value="{{ form_name|default:'' }}"
+           placeholder="Mi proyecto IA"
+           class="w-full px-3 py-2.5 rounded-lg bg-gray-800 border border-white/8
+                  text-sm text-white placeholder-gray-600 focus:outline-none
+                  focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-colors"
+           autofocus required>
+  </div>
+
+  <div>
+    <label class="block text-xs text-gray-400 mb-1.5 font-medium">Descripción</label>
+    <textarea name="description" rows="3"
+              placeholder="Para qué sirve este proyecto..."
+              class="w-full px-3 py-2.5 rounded-lg bg-gray-800 border border-white/8
+                     text-sm text-white placeholder-gray-600 focus:outline-none
+                     focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30
+                     transition-colors resize-none">{{ form_description|default:'' }}</textarea>
+  </div>
+
+  <div>
+    <label class="block text-xs text-gray-400 mb-1.5 font-medium">Modelo inicial</label>
+    <select name="model_id"
+            class="w-full px-3 py-2.5 rounded-lg bg-gray-800 border border-white/8
+                   text-sm text-white focus:outline-none focus:border-brand-500/60
+                   focus:ring-1 focus:ring-brand-500/30 transition-colors">
+      <option value="">— Sin modelo —</option>
+      {% for m in available_models %}
+      <option value="{{ m.id }}"
+        {% if form_model_id == m.id|stringformat:"s" %}selected{% endif %}>
+        {{ m.name }}{% if m.status == 'active' %} ★{% endif %}
+      </option>
+      {% endfor %}
+    </select>
+    {% if not available_models %}
+    <p class="mt-1 text-[11px] text-gray-600">
+      No hay modelos listos. Descarga uno en
+      <a href="{% url 'llm_models:catalog' %}" class="text-brand-400 hover:underline">Catálogo</a>.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="flex gap-3 pt-2">
+    <a href="{% url 'projects:list' %}"
+       class="px-5 py-2.5 rounded-lg border border-white/10 text-gray-400 text-sm
+              hover:text-white hover:border-white/20 transition-colors">
+      Cancelar
+    </a>
+    <button type="submit"
+            class="flex-1 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500
+                   text-white text-sm font-semibold transition-colors">
+      Crear proyecto
+    </button>
+  </div>
+</form>
+{% endblock %}

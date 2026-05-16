@@ -1,0 +1,316 @@
+{% extends 'layouts/app.html' %}
+{% block title %}Catálogo de Modelos – ShirkaAI{% endblock %}
+
+{% block app_content %}
+<!-- Header -->
+<header class="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
+  <div>
+    <h1 class="text-base font-semibold text-white">Catálogo de Modelos</h1>
+    <p class="text-xs text-gray-500">Descarga y activa modelos open-source directamente en tu servidor</p>
+  </div>
+</header>
+
+<!-- Content -->
+<main class="flex-1 overflow-y-auto p-6">
+  <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4" id="model-grid">
+
+    {% for item in items %}
+    {% with entry=item.entry db=item.db tags=item.tags_list %}
+    {% with cid=entry.catalog_id %}
+
+    <div class="model-card flex flex-col rounded-2xl border border-white/5 bg-gray-900
+                hover:border-white/10 transition-colors overflow-hidden"
+         data-catalog-id="{{ cid }}"
+         data-model-id="{{ db.id|default:'' }}"
+         data-status="{{ db.status|default:'catalog' }}">
+
+      <!-- Card header -->
+      <div class="flex items-start gap-3 p-5 pb-3">
+        <!-- Color dot -->
+        <div class="mt-0.5 h-8 w-8 rounded-xl shrink-0 flex items-center justify-center text-sm font-bold
+                    {% if entry.color == 'blue' %}bg-blue-500/15 text-blue-400
+                    {% elif entry.color == 'purple' %}bg-purple-500/15 text-purple-400
+                    {% elif entry.color == 'green' %}bg-green-500/15 text-green-400
+                    {% elif entry.color == 'orange' %}bg-orange-500/15 text-orange-400
+                    {% elif entry.color == 'pink' %}bg-pink-500/15 text-pink-400
+                    {% else %}bg-gray-700 text-gray-400{% endif %}">
+          {{ entry.name|first }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-sm font-semibold text-white leading-tight">{{ entry.name }}</h3>
+            <!-- Status badge -->
+            {% if db %}
+              {% if db.status == 'active' %}
+                <span class="badge-active px-2 py-0.5 rounded-full text-[10px] font-semibold
+                             bg-green-500/15 text-green-400 border border-green-500/20">Activo</span>
+              {% elif db.status == 'ready' %}
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
+                             bg-brand-500/15 text-brand-400 border border-brand-500/20">Listo</span>
+              {% elif db.status == 'downloading' %}
+                <span class="badge-downloading px-2 py-0.5 rounded-full text-[10px] font-semibold
+                             bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">Descargando</span>
+              {% elif db.status == 'error' %}
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
+                             bg-red-500/15 text-red-400 border border-red-500/20">Error</span>
+              {% endif %}
+            {% endif %}
+          </div>
+          <p class="text-xs text-gray-500 mt-0.5">{{ entry.size_label }}</p>
+        </div>
+      </div>
+
+      <p class="px-5 text-xs text-gray-400 leading-relaxed flex-1">{{ entry.description }}</p>
+
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-1.5 px-5 mt-3">
+        {% for tag in tags %}
+        <span class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-500 text-[10px]">{{ tag }}</span>
+        {% endfor %}
+      </div>
+
+      <!-- Progress bar (hidden unless downloading) -->
+      <div class="progress-wrap px-5 mt-3 {% if db.status != 'downloading' %}hidden{% endif %}">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs text-gray-400">
+            <span class="progress-dl">0</span> MB / <span class="progress-total">?</span> MB
+          </span>
+          <span class="text-xs text-gray-400">
+            <span class="progress-speed"></span>
+            &nbsp;<span class="progress-pct font-semibold text-white">{{ db.progress|default:0 }}%</span>
+          </span>
+        </div>
+        <div class="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+          <div class="progress-bar h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-300"
+               style="width: {{ db.progress|default:0 }}%"></div>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      {% if db.status == 'error' %}
+      <p class="error-msg px-5 mt-2 text-xs text-red-400 truncate" title="{{ db.error_message }}">
+        {{ db.error_message|truncatechars:60 }}
+      </p>
+      {% else %}
+      <p class="error-msg px-5 mt-2 text-xs text-red-400 hidden"></p>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 px-5 py-4 mt-2 border-t border-white/5">
+
+        {% if not db or db.status == 'catalog' or db.status == 'error' %}
+        <!-- Download -->
+        <button onclick="startDownload('{{ cid }}', this)"
+                class="btn-download flex-1 py-2 rounded-lg bg-brand-600 hover:bg-brand-500
+                       text-white text-xs font-semibold transition-colors">
+          Descargar
+        </button>
+
+        {% elif db.status == 'downloading' %}
+        <!-- Cancel -->
+        <button onclick="cancelDownload({{ db.id }}, this)"
+                class="btn-cancel flex-1 py-2 rounded-lg border border-red-500/30
+                       text-red-400 hover:bg-red-500/10 text-xs font-semibold transition-colors">
+          Cancelar
+        </button>
+
+        {% elif db.status == 'ready' %}
+        <!-- Activate -->
+        <button onclick="activateModel({{ db.id }}, this)"
+                class="flex-1 py-2 rounded-lg bg-green-600 hover:bg-green-500
+                       text-white text-xs font-semibold transition-colors">
+          Activar
+        </button>
+        <!-- Toggle público -->
+        <button onclick="togglePublic({{ db.id }}, this)"
+                data-public="{{ db.public|yesno:'true,false' }}"
+                class="py-2 px-3 rounded-lg border text-xs font-semibold transition-colors
+                       {% if db.public %}border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/10
+                       {% else %}border-white/10 text-gray-500 hover:text-yellow-400 hover:border-yellow-500/30{% endif %}"
+                title="{% if db.public %}Quitar del home público{% else %}Mostrar en home público{% endif %}">
+          🌐
+        </button>
+        <button onclick="deleteModel({{ db.id }}, this)"
+                class="py-2 px-3 rounded-lg border border-white/10 text-gray-500
+                       hover:text-red-400 hover:border-red-500/30 text-xs transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </button>
+
+        {% elif db.status == 'active' %}
+        <!-- Deactivate -->
+        <button onclick="deactivateModel({{ db.id }}, this)"
+                class="flex-1 py-2 rounded-lg border border-green-500/30 text-green-400
+                       hover:bg-green-500/10 text-xs font-semibold transition-colors">
+          ✓ Activo — Desactivar
+        </button>
+        <!-- Toggle público -->
+        <button onclick="togglePublic({{ db.id }}, this)"
+                data-public="{{ db.public|yesno:'true,false' }}"
+                class="py-2 px-3 rounded-lg border text-xs font-semibold transition-colors
+                       {% if db.public %}border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/10
+                       {% else %}border-white/10 text-gray-500 hover:text-yellow-400 hover:border-yellow-500/30{% endif %}"
+                title="{% if db.public %}Quitar del home público{% else %}Mostrar en home público{% endif %}">
+          🌐
+        </button>
+        <button onclick="deleteModel({{ db.id }}, this)"
+                class="py-2 px-3 rounded-lg border border-white/10 text-gray-500
+                       hover:text-red-400 hover:border-red-500/30 text-xs transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </button>
+        {% endif %}
+
+      </div>
+    </div>
+
+    {% endwith %}{% endwith %}
+    {% endfor %}
+
+  </div>
+</main>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+const activePolls = new Map(); // modelId → intervalId
+
+/* ── Helpers ──────────────────────────────────────────────────────────── */
+function cardByCatalogId(cid) {
+  return document.querySelector(`.model-card[data-catalog-id="${cid}"]`);
+}
+function cardByModelId(mid) {
+  return document.querySelector(`.model-card[data-model-id="${mid}"]`);
+}
+function post(url) {
+  return fetch(url, { method: 'POST', headers: { 'X-CSRFToken': CSRF } });
+}
+
+/* ── Download ─────────────────────────────────────────────────────────── */
+async function startDownload(catalogId, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Iniciando…';
+  try {
+    const res  = await post(`/models/download/${catalogId}/`);
+    const data = await res.json();
+    if (!res.ok) { alert(data.error || 'Error al iniciar descarga'); btn.disabled = false; btn.textContent = 'Descargar'; return; }
+    const card = cardByCatalogId(catalogId);
+    card.dataset.modelId = data.model_id;
+    card.dataset.status  = 'downloading';
+    setCardDownloading(card);
+    pollProgress(data.model_id);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Descargar';
+  }
+}
+
+/* ── Progress polling ─────────────────────────────────────────────────── */
+function pollProgress(modelId) {
+  if (activePolls.has(modelId)) return;
+  const iv = setInterval(async () => {
+    try {
+      const res  = await fetch(`/models/progress/${modelId}/`);
+      const data = await res.json();
+      updateCard(modelId, data);
+      if (data.status === 'ready' || data.status === 'error') {
+        clearInterval(iv);
+        activePolls.delete(modelId);
+        setTimeout(() => location.reload(), 800);
+      }
+    } catch { clearInterval(iv); activePolls.delete(modelId); }
+  }, 900);
+  activePolls.set(modelId, iv);
+}
+
+/* ── Update card UI ───────────────────────────────────────────────────── */
+function updateCard(modelId, data) {
+  const card = cardByModelId(modelId);
+  if (!card) return;
+  const pct   = data.progress || 0;
+  card.querySelector('.progress-bar').style.width = pct + '%';
+  card.querySelector('.progress-pct').textContent  = pct + '%';
+  card.querySelector('.progress-dl').textContent   = data.dl_mb || '0';
+  card.querySelector('.progress-total').textContent = data.total_mb || '?';
+  card.querySelector('.progress-speed').textContent = data.speed || '';
+  if (data.status === 'error') {
+    const errEl = card.querySelector('.error-msg');
+    errEl.textContent = data.error || 'Error desconocido';
+    errEl.classList.remove('hidden');
+  }
+}
+
+function setCardDownloading(card) {
+  card.querySelector('.progress-wrap').classList.remove('hidden');
+  const actions = card.querySelector('.flex.items-center.gap-2.px-5');
+  actions.innerHTML = `
+    <button onclick="cancelDownload(${card.dataset.modelId}, this)"
+            class="btn-cancel flex-1 py-2 rounded-lg border border-red-500/30
+                   text-red-400 hover:bg-red-500/10 text-xs font-semibold transition-colors">
+      Cancelar
+    </button>`;
+}
+
+/* ── Cancel ───────────────────────────────────────────────────────────── */
+async function cancelDownload(modelId, btn) {
+  btn.disabled = true;
+  await post(`/models/delete/${modelId}/`);
+  location.reload();
+}
+
+/* ── Activate / Deactivate ────────────────────────────────────────────── */
+async function activateModel(modelId, btn) {
+  btn.disabled = true;
+  const res = await post(`/models/activate/${modelId}/`);
+  if (res.ok) location.reload();
+  else { btn.disabled = false; alert('No se pudo activar'); }
+}
+
+async function deactivateModel(modelId, btn) {
+  btn.disabled = true;
+  await post(`/models/deactivate/${modelId}/`);
+  location.reload();
+}
+
+/* ── Toggle público ──────────────────────────────────────────────────── */
+async function togglePublic(modelId, btn) {
+  btn.disabled = true;
+  try {
+    const res  = await post(`/models/toggle-public/${modelId}/`);
+    const data = await res.json();
+    if (!res.ok) { alert(data.error || 'Error'); btn.disabled = false; return; }
+    const isPublic = data.public;
+    btn.dataset.public = isPublic ? 'true' : 'false';
+    if (isPublic) {
+      btn.className = btn.className
+        .replace('border-white/10 text-gray-500 hover:text-yellow-400 hover:border-yellow-500/30',
+                 'border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/10');
+      btn.title = 'Quitar del home público';
+    } else {
+      btn.className = btn.className
+        .replace('border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/10',
+                 'border-white/10 text-gray-500 hover:text-yellow-400 hover:border-yellow-500/30');
+      btn.title = 'Mostrar en home público';
+    }
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ── Delete ───────────────────────────────────────────────────────────── */
+async function deleteModel(modelId, btn) {
+  if (!confirm('¿Eliminar el modelo descargado?')) return;
+  btn.disabled = true;
+  await post(`/models/delete/${modelId}/`);
+  location.reload();
+}
+
+/* ── Auto-resume polls on page load for active downloads ─────────────── */
+document.querySelectorAll('.model-card[data-status="downloading"]').forEach(card => {
+  const mid = card.dataset.modelId;
+  if (mid) { setCardDownloading(card); pollProgress(parseInt(mid)); }
+});
+</script>
+{% endblock %}

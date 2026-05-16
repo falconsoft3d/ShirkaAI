@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Entorno virtual
+venv/
+.venv/
+env/
+.env/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Django
+*.sqlite3
+/media/
+staticfiles/
+static_root/
+
+# Modelos LLM (archivos .gguf pueden ser muy grandes)
+*.gguf
+media/models/
+
+# ChromaDB
+chroma_db/
+
+# Logs
+*.log
+logs/
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Cobertura de tests
+.coverage
+htmlcov/
+.pytest_cache/

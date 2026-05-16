@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="flex h-screen overflow-hidden bg-gray-950">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
+  <aside class="flex flex-col w-56 shrink-0 border-r border-white/5 bg-gray-900/70">
+
+    <!-- Brand -->
+    <a href="{% url 'home' %}"
+       class="flex items-center gap-2 px-4 py-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors">
+      <div class="h-7 w-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shrink-0">
+        <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <span class="font-bold text-white text-sm tracking-tight">ShirkaAI</span>
+    </a>
+
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto px-2 py-3 space-y-4">
+
+      <div>
+        <p class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-600">General</p>
+        <a href="{% url 'dashboard' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Dashboard
+        </a>
+        <a href="{% url 'projects:list' %}"
+           class="nav-link {% if request.resolver_match.namespace == 'projects' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+          </svg>
+          Proyectos
+        </a>
+        <a href="{% url 'tasks:list' %}"
+           class="nav-link {% if request.resolver_match.namespace == 'tasks' and request.resolver_match.url_name != 'execution_list' and request.resolver_match.url_name != 'execution_new' and request.resolver_match.url_name != 'execution_edit' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+          Tareas
+        </a>
+        <a href="{% url 'tasks:execution_list' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'execution_list' or request.resolver_match.url_name == 'execution_new' or request.resolver_match.url_name == 'execution_edit' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Ejecuciones
+        </a>
+        <a href="{% url 'chat:home' %}"
+           class="nav-link {% if request.resolver_match.namespace == 'chat' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+          Chat
+        </a>
+      </div>
+
+      <div>
+        <p class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-600">Configuración</p>
+        <a href="{% url 'api:docs' %}"
+           class="nav-link {% if request.resolver_match.namespace == 'api' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+          </svg>
+          API
+        </a>
+        <a href="{% url 'llm_models:catalog' %}"
+           class="nav-link {% if request.resolver_match.namespace == 'llm_models' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+          </svg>
+          Modelos
+        </a>
+        {% if user.is_staff %}
+        <a href="{% url 'settings_users' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'settings_users' %}active{% endif %}">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Usuarios
+        </a>
+        {% endif %}
+      </div>
+
+    </nav>
+
+  </aside>
+
+  <!-- ── CONTENT ───────────────────────────────────────────────────────── -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Topbar global: usuario en la derecha -->
+    <div class="flex items-center justify-end gap-3 px-6 py-2.5 border-b border-white/5 bg-gray-900/40 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <a href="{% url 'profile' %}"
+           class="flex items-center gap-2.5 group rounded-lg px-2 py-1 -mx-2 hover:bg-white/5 transition-colors">
+          {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}"
+                 class="h-7 w-7 rounded-full object-cover ring-1 ring-white/10 group-hover:ring-brand-500/50 transition-all">
+          {% else %}
+            <div class="h-7 w-7 rounded-full bg-gradient-to-br from-brand-500 to-purple-600
+                        flex items-center justify-center text-xs font-bold text-white shrink-0
+                        group-hover:ring-2 group-hover:ring-brand-500/40 transition-all">
+              {{ user.username|first|upper }}
+            </div>
+          {% endif %}
+          <span class="text-sm font-medium text-white group-hover:text-brand-400 transition-colors">{{ user.username }}</span>
+        </a>
+        <form method="post" action="{% url 'logout' %}" class="ml-1">
+          {% csrf_token %}
+          <button type="submit" title="Cerrar sesión"
+                  class="p-1 rounded-md text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    {% block app_content %}{% endblock %}
+  </div>
+
+</div>
+{% block extra_scripts %}{% endblock %}
+{% endblock %}

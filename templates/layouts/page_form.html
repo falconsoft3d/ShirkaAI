@@ -1,0 +1,33 @@
+{% extends 'layouts/app.html' %}
+{% block app_content %}
+<div class="flex-1 overflow-y-auto p-6">
+
+  <!-- Encabezado con botón volver -->
+  <div class="flex items-center gap-3 mb-8">
+    <a href="{% block back_url %}#{% endblock %}"
+       class="p-1.5 rounded-lg text-gray-600 hover:text-white hover:bg-white/5 transition-colors">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </a>
+    <div>
+      <h1 class="text-lg font-semibold text-white">{% block page_title %}{% endblock %}</h1>
+      <p class="text-sm text-gray-500 mt-0.5">{% block page_subtitle %}{% endblock %}</p>
+    </div>
+  </div>
+
+  <!-- Contenido del formulario -->
+  <div class="max-w-lg space-y-5">
+
+    {% if error %}
+    <div class="rounded-lg px-4 py-3 text-sm bg-red-500/10 border border-red-500/20 text-red-400">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    {% block form_content %}{% endblock %}
+
+  </div>
+
+</div>
+{% endblock %}

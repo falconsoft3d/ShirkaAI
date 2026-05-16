@@ -1,0 +1,126 @@
+{% extends 'layouts/app.html' %}
+{% block title %}{% if task %}Editar tarea{% else %}Nueva tarea{% endif %} – ShirkaAI{% endblock %}
+
+{% block app_content %}
+<div class="flex-1 overflow-y-auto">
+
+  <!-- Topbar -->
+  <div class="flex items-center gap-2 px-6 py-3 border-b border-white/5 bg-gray-900/30 text-xs text-gray-500">
+    <a href="{% url 'tasks:list' %}" class="hover:text-gray-300 transition-colors">Tareas</a>
+    <span class="text-gray-700">/</span>
+    <span class="text-gray-300 font-medium">{% if task %}Editar{% else %}Nueva tarea{% endif %}</span>
+  </div>
+
+  <main class="p-6 max-w-xl">
+    <h1 class="text-lg font-bold text-white mb-6">
+      {% if task %}Editar tarea{% else %}Nueva tarea{% endif %}
+    </h1>
+
+    {% if error %}
+    <div class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      <!-- Título -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Título *</label>
+        <input type="text" name="title"
+               value="{% if form_data %}{{ form_data.title }}{% elif task %}{{ task.title }}{% endif %}"
+               placeholder="Nombre de la tarea"
+               class="w-full bg-gray-800/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white
+                      placeholder-gray-600 focus:outline-none focus:border-brand-500/60 focus:bg-gray-800 transition"
+               required autofocus>
+      </div>
+
+      <!-- Descripción -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Descripción</label>
+        <textarea name="description" rows="4"
+                  placeholder="Describe la tarea (opcional)"
+                  class="w-full bg-gray-800/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white
+                         placeholder-gray-600 focus:outline-none focus:border-brand-500/60 focus:bg-gray-800 transition resize-none">{% if form_data %}{{ form_data.description }}{% elif task %}{{ task.description }}{% endif %}</textarea>
+      </div>
+
+      <!-- Proyecto (opcional) -->
+      {% if projects %}
+      <div class="space-y-1.5">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Proyecto (opcional)</label>
+        <select name="project"
+                class="w-full bg-gray-800/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white
+                       focus:outline-none focus:border-brand-500/60 focus:bg-gray-800 transition">
+          <option value="">— Sin proyecto —</option>
+          {% for p in projects %}
+          <option value="{{ p.pk }}"
+            {% if form_data.project == p.pk|stringformat:"s" %}selected
+            {% elif task.project_id == p.pk %}selected{% endif %}>
+            {{ p.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <!-- Activo -->
+      <div class="flex items-center gap-3">
+        <button type="button" id="toggle-active"
+                onclick="toggleActive()"
+                class="relative h-6 w-11 rounded-full transition-colors duration-200
+                       {% if task %}{% if task.active %}bg-brand-500{% else %}bg-gray-700{% endif %}{% else %}bg-brand-500{% endif %}">
+          <span id="toggle-knob"
+                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200
+                       {% if task %}{% if task.active %}translate-x-5{% else %}translate-x-0{% endif %}{% else %}translate-x-5{% endif %}">
+          </span>
+        </button>
+        <span id="toggle-label" class="text-sm text-gray-300">
+          {% if task %}{% if task.active %}Activa{% else %}Inactiva{% endif %}{% else %}Activa{% endif %}
+        </span>
+        <input type="checkbox" name="active" id="active-input" class="hidden"
+               {% if task %}{% if task.active %}checked{% endif %}{% else %}checked{% endif %}>
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit"
+                class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold transition-colors">
+          {% if task %}Guardar cambios{% else %}Crear tarea{% endif %}
+        </button>
+        <a href="{% url 'tasks:list' %}"
+           class="px-5 py-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white
+                  hover:border-white/20 text-sm font-medium transition-colors">
+          Cancelar
+        </a>
+        {% if task %}
+        <form method="post" action="{% url 'tasks:delete' task.pk %}" class="ml-auto"
+              onsubmit="return confirm('¿Eliminar esta tarea?')">
+          {% csrf_token %}
+          <button type="submit"
+                  class="px-4 py-2.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10
+                         text-sm font-medium transition-colors">
+            Eliminar
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </form>
+  </main>
+</div>
+
+<script>
+function toggleActive() {
+  const input  = document.getElementById('active-input');
+  const btn    = document.getElementById('toggle-active');
+  const knob   = document.getElementById('toggle-knob');
+  const label  = document.getElementById('toggle-label');
+  input.checked = !input.checked;
+  btn.classList.toggle('bg-brand-500', input.checked);
+  btn.classList.toggle('bg-gray-700',  !input.checked);
+  knob.classList.toggle('translate-x-5', input.checked);
+  knob.classList.toggle('translate-x-0', !input.checked);
+  label.textContent = input.checked ? 'Activa' : 'Inactiva';
+}
+</script>
+{% endblock %}

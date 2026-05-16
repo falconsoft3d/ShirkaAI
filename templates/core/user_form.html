@@ -1,0 +1,68 @@
+{% extends 'layouts/page_form.html' %}
+
+{% block back_url %}{% url 'settings_users' %}{% endblock %}
+{% block page_title %}Nuevo usuario{% endblock %}
+{% block page_subtitle %}Crea una cuenta con acceso a ShirkaAI{% endblock %}
+
+{% block form_content %}
+<form method="post" action="{% url 'user_create' %}" class="space-y-5"
+      autocomplete="off">
+  {% csrf_token %}
+
+  <div>
+    <label class="block text-xs text-gray-400 mb-1.5 font-medium">
+      Nombre de usuario <span class="text-red-400">*</span>
+    </label>
+    <input type="text" name="username" value="{{ form_username|default:'' }}"
+           required autofocus autocomplete="off"
+           placeholder="ej. maria_lopez"
+           class="w-full px-3 py-2.5 rounded-lg bg-gray-800 border border-white/8
+                  text-sm text-white placeholder-gray-600 focus:outline-none
+                  focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-colors">
+  </div>
+
+  <div>
+    <label class="block text-xs text-gray-400 mb-1.5 font-medium">Email</label>
+    <input type="email" name="email" value="{{ form_email|default:'' }}"
+           autocomplete="off"
+           placeholder="correo@ejemplo.com"
+           class="w-full px-3 py-2.5 rounded-lg bg-gray-800 border border-white/8
+                  text-sm text-white placeholder-gray-600 focus:outline-none
+                  focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-colors">
+  </div>
+
+  <div>
+    <label class="block text-xs text-gray-400 mb-1.5 font-medium">
+      Contraseña <span class="text-red-400">*</span>
+    </label>
+    <input type="password" name="password"
+           required autocomplete="new-password"
+           placeholder="Mínimo 8 caracteres"
+           class="w-full px-3 py-2.5 rounded-lg bg-gray-800 border border-white/8
+                  text-sm text-white placeholder-gray-600 focus:outline-none
+                  focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-colors">
+  </div>
+
+  <div class="flex items-center gap-2.5 py-1">
+    <input type="checkbox" name="is_staff" id="is_staff"
+           class="h-4 w-4 rounded border-white/10 bg-gray-800 accent-brand-500 cursor-pointer">
+    <label for="is_staff" class="text-sm text-gray-400 cursor-pointer select-none">
+      Acceso de staff
+      <span class="text-xs text-gray-600">(puede gestionar usuarios y proyectos)</span>
+    </label>
+  </div>
+
+  <div class="flex gap-3 pt-2">
+    <a href="{% url 'settings_users' %}"
+       class="px-5 py-2.5 rounded-lg border border-white/10 text-gray-400 text-sm
+              hover:text-white hover:border-white/20 transition-colors">
+      Cancelar
+    </a>
+    <button type="submit"
+            class="flex-1 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500
+                   text-white text-sm font-semibold transition-colors">
+      Crear usuario
+    </button>
+  </div>
+</form>
+{% endblock %}

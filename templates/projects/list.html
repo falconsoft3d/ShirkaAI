@@ -1,0 +1,248 @@
+{% extends 'layouts/page_list.html' %}
+
+{% block page_title %}Proyectos{% endblock %}
+{% block page_subtitle %}Organiza tus flujos y agentes por proyecto{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'projects:new' %}"
+   class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500
+          text-white text-sm font-medium transition-colors">
+  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+  </svg>
+  Nuevo proyecto
+</a>
+{% endblock %}
+
+{% block list_content %}
+{% if projects %}
+<div class="space-y-3">
+  {% for project in projects %}
+  <div class="rounded-xl border border-white/8 bg-gray-900/60 hover:border-white/12 transition-colors group">
+
+    <div class="flex items-start gap-4 px-5 py-4">
+      <!-- Avatar -->
+      <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600
+                  flex items-center justify-center text-sm font-bold text-white shrink-0">
+        {{ project.name|first|upper }}
+      </div>
+      <!-- Info -->
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-white leading-tight">{{ project.name }}</p>
+        {% if project.description %}
+        <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ project.description }}</p>
+        {% else %}
+        <p class="text-xs text-gray-600 mt-0.5 italic">Sin descripción</p>
+        {% endif %}
+        <!-- Badges: modelo + vectores -->
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          {% if project.api_provider == 'openai' %}
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md
+                       bg-green-500/10 border border-green-500/20 text-green-400 text-[11px] font-medium">
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+            OpenAI · {{ project.api_model_name|default:"gpt-4o-mini" }}
+          </span>
+          {% elif project.model %}
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md
+                       bg-brand-500/10 border border-brand-500/20 text-brand-400 text-[11px] font-medium">
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+            </svg>
+            {{ project.model.name }}
+            {% if project.model.status == 'active' %}<span class="ml-0.5 text-green-400">★</span>{% endif %}
+          </span>
+          {% else %}
+          <span class="text-[11px] text-gray-600 italic">Sin IA configurada</span>
+          {% endif %}
+
+          <!-- Vectores -->
+          {% if project.vector_stats.docs or project.vector_stats.memory %}
+          <a href="{% url 'projects:memory' project.pk %}"
+             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md
+                    bg-violet-500/10 border border-violet-500/20 text-violet-400 text-[11px]
+                    hover:bg-violet-500/20 transition-colors"
+             title="Ver memoria vectorial">
+            <svg class="h-3 w-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/>
+            </svg>
+            {{ project.vector_stats.docs }} docs&nbsp;·&nbsp;{{ project.vector_stats.memory }} mem
+          </a>
+          {% if project.vector_stats.memory %}
+          <form method="post" action="{% url 'projects:clear_memory' project.pk %}"
+                onsubmit="return confirm('¿Borrar toda la memoria de chat de «{{ project.name }}»?')">
+            {% csrf_token %}
+            <button type="submit"
+                    class="text-[11px] px-2 py-0.5 rounded-md text-gray-600
+                           hover:text-red-400 hover:bg-red-500/10 border border-transparent
+                           hover:border-red-500/20 transition-colors"
+                    title="Limpiar memoria de chat">
+              Limpiar memoria
+            </button>
+          </form>
+          {% endif %}
+          {% endif %}
+        </div>
+        <p class="text-[10px] text-gray-700 mt-1.5">Creado {{ project.created_at|date:"d M Y" }}</p>
+      </div>
+      <!-- Acciones -->
+      <div class="flex items-center gap-1 shrink-0">
+        <a href="{% url 'docs:list' project.pk %}"
+           class="opacity-0 group-hover:opacity-100 flex items-center gap-1 p-1.5 rounded-lg text-gray-600
+                  hover:text-brand-400 hover:bg-brand-500/10 transition-all"
+           title="Documentación">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </a>
+        <form method="post" action="{% url 'projects:delete' project.pk %}"
+              onsubmit="return confirm('¿Eliminar proyecto «{{ project.name }}»?')">
+          {% csrf_token %}
+          <button type="submit"
+                  class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-gray-600
+                         hover:text-red-400 hover:bg-red-500/10 transition-all">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- AI Config row -->
+    <div class="px-5 pb-4 border-t border-white/5 pt-3 space-y-3">
+
+      <!-- Provider tabs -->
+      <div class="flex gap-2">
+        <button type="button"
+                onclick="setProvider({{ project.pk }}, 'local')"
+                id="tab-local-{{ project.pk }}"
+                class="px-3 py-1 rounded-lg text-xs font-medium transition-colors
+                       {% if project.api_provider == 'openai' %}bg-gray-800 text-gray-500 hover:text-white{% else %}bg-brand-500/15 text-brand-300 border border-brand-500/20{% endif %}">
+          Modelo local
+        </button>
+        <button type="button"
+                onclick="setProvider({{ project.pk }}, 'openai')"
+                id="tab-openai-{{ project.pk }}"
+                class="px-3 py-1 rounded-lg text-xs font-medium transition-colors
+                       {% if project.api_provider == 'openai' %}bg-green-500/15 text-green-300 border border-green-500/20{% else %}bg-gray-800 text-gray-500 hover:text-white{% endif %}">
+          OpenAI (ChatGPT)
+        </button>
+      </div>
+
+      <!-- Local model form -->
+      <form id="form-local-{{ project.pk }}"
+            method="post" action="{% url 'projects:set_api' project.pk %}"
+            class="{% if project.api_provider == 'openai' %}hidden{% endif %} flex items-center gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="api_provider" value="local">
+        {% if available_models %}
+        <select name="model_id"
+                class="flex-1 px-3 py-1.5 rounded-lg bg-gray-800 border border-white/8
+                       text-xs text-white focus:outline-none focus:border-brand-500/50 transition-colors">
+          <option value="">— Sin modelo —</option>
+          {% for m in available_models %}
+          <option value="{{ m.id }}" {% if project.model_id == m.id %}selected{% endif %}>
+            {{ m.name }}{% if m.status == 'active' %} ★{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+        <button type="submit"
+                class="px-3 py-1.5 rounded-lg bg-gray-800 border border-white/8
+                       text-xs text-gray-400 hover:text-white hover:border-white/20 transition-colors whitespace-nowrap">
+          Guardar
+        </button>
+        {% else %}
+        <p class="text-[11px] text-gray-600">No hay modelos listos. <a href="{% url 'llm_models:catalog' %}" class="text-brand-400 hover:underline">Descarga uno</a>.</p>
+        {% endif %}
+      </form>
+
+      <!-- OpenAI form -->
+      <form id="form-openai-{{ project.pk }}"
+            method="post" action="{% url 'projects:set_api' project.pk %}"
+            class="{% if project.api_provider != 'openai' %}hidden{% endif %} space-y-2">
+        {% csrf_token %}
+        <input type="hidden" name="api_provider" value="openai">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] text-gray-500 mb-1">API Key de OpenAI</label>
+            <input type="password" name="api_key"
+                   value="{{ project.api_key_masked }}"
+                   placeholder="sk-…"
+                   autocomplete="new-password"
+                   class="w-full px-3 py-1.5 rounded-lg bg-gray-800 border border-white/8
+                          text-xs text-white placeholder-gray-600 focus:outline-none
+                          focus:border-green-500/50 transition-colors font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-500 mb-1">Modelo</label>
+            <select name="api_model_name"
+                    class="w-full px-3 py-1.5 rounded-lg bg-gray-800 border border-white/8
+                           text-xs text-white focus:outline-none focus:border-green-500/50 transition-colors">
+              {% for val, label in project.OPENAI_MODEL_CHOICES %}
+              <option value="{{ val }}" {% if project.api_model_name == val %}selected{% elif not project.api_model_name and val == 'gpt-4o-mini' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit"
+                  class="px-3 py-1.5 rounded-lg bg-green-600/80 hover:bg-green-500/80
+                         text-xs text-white font-semibold transition-colors">
+            Guardar configuración
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- Estado vacío -->
+<div class="flex flex-col items-center justify-center py-20 text-center">
+  <div class="h-12 w-12 rounded-xl bg-gray-800 flex items-center justify-center mb-3">
+    <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+    </svg>
+  </div>
+  <p class="text-sm text-gray-500">Aún no tienes proyectos</p>
+  <a href="{% url 'projects:new' %}"
+     class="mt-3 text-xs text-brand-400 hover:underline">
+    Crea tu primer proyecto
+  </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function setProvider(pk, provider) {
+  const formLocal  = document.getElementById('form-local-'  + pk);
+  const formOpenai = document.getElementById('form-openai-' + pk);
+  const tabLocal   = document.getElementById('tab-local-'   + pk);
+  const tabOpenai  = document.getElementById('tab-openai-'  + pk);
+
+  if (provider === 'openai') {
+    formLocal.classList.add('hidden');
+    formOpenai.classList.remove('hidden');
+    tabLocal.className  = tabLocal.className.replace(/bg-brand-500\/15 text-brand-300 border border-brand-500\/20/, 'bg-gray-800 text-gray-500 hover:text-white');
+    tabOpenai.className = tabOpenai.className.replace('bg-gray-800 text-gray-500 hover:text-white', 'bg-green-500/15 text-green-300 border border-green-500/20');
+  } else {
+    formOpenai.classList.add('hidden');
+    formLocal.classList.remove('hidden');
+    tabOpenai.className = tabOpenai.className.replace(/bg-green-500\/15 text-green-300 border border-green-500\/20/, 'bg-gray-800 text-gray-500 hover:text-white');
+    tabLocal.className  = tabLocal.className.replace('bg-gray-800 text-gray-500 hover:text-white', 'bg-brand-500/15 text-brand-300 border border-brand-500/20');
+  }
+}
+</script>
+{% endblock %}

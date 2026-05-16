@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% block title %}{{ model.name }} – Chat público · ShirkaAI{% endblock %}
+
+{% block body %}
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-gray-950/90 backdrop-blur-md">
+  <div class="mx-auto max-w-5xl px-6 flex h-14 items-center justify-between">
+    <a href="{% url 'home' %}#prueba-ia" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Volver
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="h-6 w-6 rounded-md bg-gradient-to-br from-green-500 to-brand-600 flex items-center justify-center">
+        <svg class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <span class="text-sm font-semibold text-white">{{ model.name }}</span>
+      <span class="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400">
+        <span class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></span>
+        En línea
+      </span>
+    </div>
+    <button onclick="clearChat()"
+            class="text-xs text-gray-600 hover:text-red-400 transition-colors">
+      Limpiar chat
+    </button>
+  </div>
+</nav>
+
+<!-- CHAT -->
+<div class="flex flex-col h-screen pt-14 bg-gray-950">
+
+  <!-- Messages -->
+  <div id="messages" class="flex-1 overflow-y-auto px-4 py-6 space-y-4 max-w-3xl mx-auto w-full">
+
+    <!-- Mensaje de bienvenida si historial vacío -->
+    {% if not history %}
+    <div class="flex justify-center">
+      <div class="text-center py-8 space-y-2">
+        <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-green-500 to-brand-600
+                    flex items-center justify-center mx-auto">
+          <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </div>
+        <p class="text-white font-semibold">{{ model.name }}</p>
+        <p class="text-sm text-gray-500">Escríbeme algo, estoy listo para ayudarte.</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Historial de mensajes -->
+    {% for msg in history %}
+    {% if msg.role == 'user' %}
+    <div class="flex justify-end" data-role="user">
+      <div class="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-brand-600 text-white text-sm leading-relaxed">
+        {{ msg.content }}
+      </div>
+    </div>
+    {% else %}
+    <div class="flex gap-3 items-start" data-role="assistant">
+      <div class="h-7 w-7 rounded-full bg-gradient-to-br from-green-500 to-brand-600
+                  flex items-center justify-center shrink-0 mt-0.5">
+        <svg class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <div class="max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-sm bg-gray-800 border border-white/8 text-gray-100 text-sm leading-relaxed whitespace-pre-wrap">
+        {{ msg.content }}
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- Indicador de escritura -->
+    <div id="typing-indicator" class="hidden flex gap-3 items-start">
+      <div class="h-7 w-7 rounded-full bg-gradient-to-br from-green-500 to-brand-600
+                  flex items-center justify-center shrink-0 mt-0.5">
+        <svg class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <div class="px-4 py-3 rounded-2xl rounded-tl-sm bg-gray-800 border border-white/8 flex items-center gap-1.5">
+        <span class="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style="animation-delay:0ms"></span>
+        <span class="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style="animation-delay:150ms"></span>
+        <span class="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style="animation-delay:300ms"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Input -->
+  <div class="border-t border-white/5 bg-gray-900/60 backdrop-blur px-4 py-4">
+    <form id="chat-form" class="max-w-3xl mx-auto flex gap-3 items-end">
+      {% csrf_token %}
+      <textarea id="message-input"
+                name="message"
+                rows="1"
+                placeholder="Escribe tu mensaje…"
+                class="flex-1 bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white
+                       placeholder-gray-600 focus:outline-none focus:border-brand-500/50 transition resize-none
+                       max-h-36 overflow-y-auto"
+                onkeydown="handleKey(event)"
+                oninput="autoResize(this)"></textarea>
+      <button type="submit" id="send-btn"
+              class="h-11 w-11 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-40 disabled:cursor-not-allowed
+                     flex items-center justify-center transition-colors shrink-0">
+        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+        </svg>
+      </button>
+    </form>
+    <p class="text-center text-[10px] text-gray-700 mt-2 max-w-3xl mx-auto">
+      Chat público de ShirkaAI — los mensajes se guardan solo en tu sesión de navegador
+    </p>
+  </div>
+
+</div>
+
+<script>
+const SEND_URL  = "{% url 'public_chat_send' model.pk %}";
+const CLEAR_URL = "{% url 'public_chat_clear' model.pk %}";
+const CSRF      = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+function scrollToBottom() {
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+scrollToBottom();
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 144) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+  }
+}
+
+function addMessage(role, content) {
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  if (role === 'user') {
+    wrap.className = 'flex justify-end';
+    wrap.dataset.role = 'user';
+    wrap.innerHTML = `<div class="max-w-[75%] px-4 py-3 rounded-2xl rounded-tr-sm bg-brand-600 text-white text-sm leading-relaxed">${escHtml(content)}</div>`;
+  } else {
+    wrap.className = 'flex gap-3 items-start';
+    wrap.dataset.role = 'assistant';
+    wrap.innerHTML = `
+      <div class="h-7 w-7 rounded-full bg-gradient-to-br from-green-500 to-brand-600 flex items-center justify-center shrink-0 mt-0.5">
+        <svg class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <div class="max-w-[75%] px-4 py-3 rounded-2xl rounded-tl-sm bg-gray-800 border border-white/8 text-gray-100 text-sm leading-relaxed whitespace-pre-wrap">${escHtml(content)}</div>`;
+  }
+  msgs.appendChild(wrap);
+  scrollToBottom();
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('chat-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const input = document.getElementById('message-input');
+  const msg   = input.value.trim();
+  if (!msg) return;
+
+  // Limpiar bienvenida si existe
+  const welcome = document.querySelector('#messages .text-center');
+  if (welcome && welcome.closest('.flex')) welcome.closest('.flex').remove();
+
+  addMessage('user', msg);
+  input.value = '';
+  input.style.height = 'auto';
+
+  const indicator = document.getElementById('typing-indicator');
+  indicator.classList.remove('hidden');
+  indicator.classList.add('flex');
+  scrollToBottom();
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch(SEND_URL, {
+      method: 'POST',
+      headers: {'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'message=' + encodeURIComponent(msg),
+    });
+    const data = await resp.json();
+    indicator.classList.add('hidden');
+    indicator.classList.remove('flex');
+    if (data.reply) {
+      addMessage('assistant', data.reply);
+    } else {
+      addMessage('assistant', '⚠️ ' + (data.error || 'Error al procesar la respuesta.'));
+    }
+  } catch (err) {
+    indicator.classList.add('hidden');
+    indicator.classList.remove('flex');
+    addMessage('assistant', '⚠️ Error de conexión. Inténtalo de nuevo.');
+  } finally {
+    btn.disabled = false;
+    input.focus();
+  }
+});
+
+async function clearChat() {
+  if (!confirm('¿Limpiar el historial de esta conversación?')) return;
+  await fetch(CLEAR_URL, {
+    method: 'POST',
+    headers: {'X-CSRFToken': CSRF},
+  });
+  location.reload();
+}
+</script>
+{% endblock %}

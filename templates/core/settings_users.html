@@ -1,0 +1,78 @@
+{% extends 'layouts/page_list.html' %}
+
+{% block page_title %}Usuarios{% endblock %}
+{% block page_subtitle %}Gestiona las cuentas con acceso a ShirkaAI{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'user_new' %}"
+   class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500
+          text-white text-sm font-medium transition-colors">
+  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+  </svg>
+  Nuevo usuario
+</a>
+{% endblock %}
+
+{% block list_content %}
+<div class="bg-gray-900/60 border border-white/5 rounded-xl overflow-hidden">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left text-[11px] uppercase tracking-widest text-gray-600 border-b border-white/5">
+        <th class="px-5 py-3">Usuario</th>
+        <th class="px-5 py-3">Email</th>
+        <th class="px-5 py-3">Rol</th>
+        <th class="px-5 py-3">Registrado</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-white/5">
+      {% for u in users %}
+      <tr class="hover:bg-white/[0.04] transition-colors cursor-pointer group"
+          onclick="window.location='{% url 'user_edit' u.pk %}'">
+        <td class="px-5 py-3 font-medium text-white">
+          <div class="flex items-center gap-2">
+            <div class="h-7 w-7 rounded-full bg-gradient-to-br from-brand-500 to-purple-600
+                        flex items-center justify-center text-xs font-bold text-white shrink-0">
+              {{ u.username|first|upper }}
+            </div>
+            <span class="group-hover:text-brand-400 transition-colors">{{ u.username }}</span>
+            {% if u == request.user %}
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-400">Tú</span>
+            {% endif %}
+          </div>
+        </td>
+        <td class="px-5 py-3 text-gray-400">{{ u.email|default:"—" }}</td>
+        <td class="px-5 py-3">
+          {% if u.is_superuser %}
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400">Superusuario</span>
+          {% elif u.is_staff %}
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400">Staff</span>
+          {% else %}
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/60 text-gray-400">Usuario</span>
+          {% endif %}
+        </td>
+        <td class="px-5 py-3 text-gray-500 text-xs">{{ u.date_joined|date:"d/m/Y" }}</td>
+        <td class="px-5 py-3 text-right" onclick="event.stopPropagation()">
+          {% if not u.is_superuser and u != request.user %}
+            <form method="post" action="{% url 'user_delete' u.pk %}"
+                  onsubmit="return confirm('¿Eliminar al usuario {{ u.username }}?')">
+              {% csrf_token %}
+              <button type="submit"
+                      class="text-xs px-2.5 py-1 rounded-md text-red-400 border border-red-500/20
+                             hover:bg-red-500/10 transition-colors">
+                Eliminar
+              </button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="px-5 py-8 text-center text-gray-600">No hay usuarios registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
