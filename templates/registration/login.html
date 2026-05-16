@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar sesión – ShirkaAI{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex">
+  <!-- Left panel -->
+  <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gray-900 items-center justify-center p-12">
+    <!-- Glow -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-brand-700/20 blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-purple-700/15 blur-3xl"></div>
+    </div>
+    <!-- Grid pattern -->
+    <div class="absolute inset-0 opacity-[0.03]"
+         style="background-image: linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:40px 40px"></div>
+
+    <div class="relative text-center space-y-8 max-w-sm">
+      <div class="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700
+                  flex items-center justify-center shadow-2xl shadow-brand-900/50">
+        <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-3xl font-bold text-white mb-3">ShirkaAI</h2>
+        <p class="text-gray-400 leading-relaxed">
+          Tu plataforma de IA local y privada. Modelos open-source, memoria persistente
+          y conexiones a tus apps favoritas.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-left">
+        <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Modelos</p>
+          <p class="text-sm text-white font-medium">Llama · Mistral · Qwen</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Conecta</p>
+          <p class="text-sm text-white font-medium">Odoo · Gmail · WhatsApp</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Privacidad</p>
+          <p class="text-sm text-white font-medium">100% tus datos</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+          <p class="text-xs text-gray-500 mb-1">Tareas IA</p>
+          <p class="text-sm text-white font-medium">Reportes · Tickets · Más</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel: form -->
+  <div class="flex-1 flex items-center justify-center px-6 py-12">
+    <div class="w-full max-w-sm space-y-8">
+      <!-- Mobile logo -->
+      <div class="lg:hidden flex items-center gap-2 justify-center">
+        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <span class="text-xl font-bold text-white">ShirkaAI</span>
+      </div>
+
+      <div class="space-y-2">
+        <h1 class="text-2xl font-bold text-white">Bienvenido de nuevo</h1>
+        <p class="text-sm text-gray-400">Ingresa tus credenciales para continuar</p>
+      </div>
+
+      {% if form.errors %}
+      <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+        <div class="flex items-start gap-2">
+          <svg class="h-4 w-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Usuario o contraseña incorrectos. Intenta de nuevo.</span>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if messages %}
+      {% for message in messages %}
+      <div class="rounded-xl border border-brand-500/20 bg-brand-500/10 p-4 text-sm text-brand-400">
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}" />
+
+        <div class="space-y-1.5">
+          <label for="id_username" class="block text-sm font-medium text-gray-300">Usuario</label>
+          <input type="text"
+                 id="id_username"
+                 name="username"
+                 autocomplete="username"
+                 required
+                 placeholder="tu_usuario"
+                 class="w-full rounded-xl bg-gray-900 border border-white/10 px-4 py-3 text-sm text-white
+                        placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50
+                        focus:border-brand-500/50 transition-colors" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="id_password" class="block text-sm font-medium text-gray-300">Contraseña</label>
+          <input type="password"
+                 id="id_password"
+                 name="password"
+                 autocomplete="current-password"
+                 required
+                 placeholder="••••••••"
+                 class="w-full rounded-xl bg-gray-900 border border-white/10 px-4 py-3 text-sm text-white
+                        placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50
+                        focus:border-brand-500/50 transition-colors" />
+        </div>
+
+        <button type="submit"
+                class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold
+                       text-sm transition-all shadow-lg shadow-brand-900/40 hover:shadow-brand-700/30
+                       focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2
+                       focus:ring-offset-gray-950">
+          Iniciar sesión
+        </button>
+      </form>
+
+      <p class="text-center text-xs text-gray-600">
+        <a href="/" class="hover:text-gray-400 transition-colors">← Volver al inicio</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

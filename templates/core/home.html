@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block title %}ShirkaAI – Plataforma de IA Privada{% endblock %}
+
+{% block body %}
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-gray-950/80 backdrop-blur-md">
+  <div class="mx-auto max-w-7xl px-6 flex h-16 items-center justify-between">
+    <div class="flex items-center gap-2">
+      <!-- Logo mark -->
+      <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <span class="text-lg font-bold tracking-tight text-white">ShirkaAI</span>
+    </div>
+    <div class="flex items-center gap-4">
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}"
+           class="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium transition-colors">
+          Dashboard →
+        </a>
+      {% else %}
+        <a href="{% url 'login' %}"
+           class="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium transition-colors">
+          Iniciar sesión
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<main class="pt-16">
+  <section class="relative overflow-hidden min-h-screen flex items-center">
+    <!-- Background glow -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 h-[600px] w-[900px]
+                  rounded-full bg-brand-700/15 blur-3xl"></div>
+      <div class="absolute top-1/2 -right-20 h-[400px] w-[400px]
+                  rounded-full bg-purple-700/10 blur-3xl"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-6 py-24 lg:py-32 grid lg:grid-cols-2 gap-16 items-center">
+      <!-- Left: copy -->
+      <div class="space-y-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-700/40
+                    bg-brand-950/60 text-brand-400 text-xs font-medium tracking-wide uppercase">
+          <span class="h-1.5 w-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+          IA local &amp; privada
+        </div>
+
+        <h1 class="text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-white">
+          Tu IA.<br/>
+          <span class="bg-gradient-to-r from-brand-400 to-purple-400 bg-clip-text text-transparent">
+            Tus datos.
+          </span><br/>
+          Tu control.
+        </h1>
+
+        <p class="text-lg text-gray-400 leading-relaxed max-w-lg">
+          Plataforma personal y empresarial para correr modelos open-source, conectar tus apps,
+          mantener memoria y automatizar tareas — sin depender de terceros.
+        </p>
+
+        <div class="flex flex-wrap gap-4">
+          <a href="{% url 'login' %}"
+             class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold
+                    transition-all shadow-lg shadow-brand-900/40 hover:shadow-brand-700/30">
+            Empezar ahora
+          </a>
+          <a href="#features"
+             class="px-6 py-3 rounded-xl border border-white/10 hover:border-white/20
+                    text-gray-300 hover:text-white font-semibold transition-colors">
+            Ver funciones
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: feature cards -->
+      <div class="grid grid-cols-2 gap-4">
+        {% for item in features %}
+        <div class="group p-5 rounded-2xl border border-white/5 bg-gray-900/60 backdrop-blur
+                    hover:border-brand-700/40 hover:bg-gray-900 transition-all">
+          <div class="text-2xl mb-3">{{ item.icon }}</div>
+          <h3 class="text-sm font-semibold text-white mb-1">{{ item.title }}</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">{{ item.desc }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section id="features" class="py-24 border-t border-white/5">
+    <div class="mx-auto max-w-7xl px-6">
+      <div class="text-center mb-16 space-y-3">
+        <h2 class="text-3xl lg:text-4xl font-bold text-white">Todo lo que necesitas</h2>
+        <p class="text-gray-400 max-w-xl mx-auto">
+          Desde modelos LLM hasta integraciones con tu ERP, ShirkaAI es tu hub de IA centralizado.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-gray-900 border border-white/5 space-y-3">
+          <div class="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white">Modelos Open Source</h3>
+          <p class="text-sm text-gray-500">Llama, Mistral, Qwen, DeepSeek y más. Corre localmente o en tu servidor.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-gray-900 border border-white/5 space-y-3">
+          <div class="h-10 w-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white">Conexiones Externas</h3>
+          <p class="text-sm text-gray-500">Odoo, WhatsApp, Gmail, Google Calendar, ERP, webhooks y APIs REST.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-gray-900 border border-white/5 space-y-3">
+          <div class="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white">Memoria Persistente</h3>
+          <p class="text-sm text-gray-500">Contactos, proyectos, preferencias, historial de conversaciones y documentos.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-gray-900 border border-white/5 space-y-3">
+          <div class="h-10 w-10 rounded-xl bg-yellow-500/10 text-yellow-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white">Automatización de Tareas</h3>
+          <p class="text-sm text-gray-500">Resume, responde, crea tickets, consulta datos y genera reportes automáticamente.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-gray-900 border border-white/5 space-y-3">
+          <div class="h-10 w-10 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white">Privacidad Total</h3>
+          <p class="text-sm text-gray-500">Tus datos nunca salen sin tu permiso. Sin OpenAI, sin Firebase, sin sorpresas.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-gray-900 border border-white/5 space-y-3">
+          <div class="h-10 w-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-white">Multi-workspace</h3>
+          <p class="text-sm text-gray-500">Organiza proyectos, equipos y flujos de trabajo en espacios separados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="border-t border-white/5 py-8">
+  <div class="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2 text-sm text-gray-500">
+      <span class="font-semibold text-white">ShirkaAI</span>
+      <span>·</span>
+      <span>Plataforma de IA privada</span>
+    </div>
+    <p class="text-xs text-gray-600">© 2026 ShirkaAI. Todos los derechos reservados.</p>
+  </div>
+</footer>
+{% endblock %}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}ShirkaAI{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#f0f4ff',
+              100: '#dde6ff',
+              200: '#c3d0ff',
+              300: '#9eb2ff',
+              400: '#7a8eff',
+              500: '#5a6fff',
+              600: '#4150f5',
+              700: '#3540db',
+              800: '#2c35b1',
+              900: '#27308c',
+              950: '#181e55',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer base {
+      body { @apply bg-gray-950 text-gray-100; }
+    }
+    @layer components {
+      .nav-link {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400
+               hover:bg-gray-800 hover:text-white transition-colors duration-150 text-sm font-medium;
+      }
+      .nav-link.active {
+        @apply bg-brand-700/20 text-brand-400 border border-brand-700/30;
+      }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full">
+  {% block body %}{% endblock %}
+</body>
+</html>
