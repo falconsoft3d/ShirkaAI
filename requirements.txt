@@ -1,0 +1,22 @@
+# Web
+Django==6.0.5
+gunicorn==23.0.0
+whitenoise==6.9.0
+
+# Base de datos
+psycopg2-binary==2.9.10
+
+# LLM local
+llama_cpp_python==0.3.23
+
+# Vector store
+chromadb==1.5.9
+
+# Documentos
+pypdf==6.11.0
+
+# Utilidades
+pillow==12.2.0
+requests==2.34.2
+python-dotenv==1.2.2
+huggingface_hub==1.15.0
