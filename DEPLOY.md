@@ -50,9 +50,9 @@ docker compose version
 
 ```bash
 cd /opt
-sudo git clone https://github.com/TU_USUARIO/ShirkaAI.git shirkaai
-sudo chown -R $USER:$USER /opt/shirkaai
-cd /opt/shirkaai
+sudo git clone https://github.com/TU_USUARIO/ShirkaAI.git
+sudo chown -R $USER:$USER /opt/ShirkaAI
+cd /opt/ShirkaAI
 ```
 
 ---
