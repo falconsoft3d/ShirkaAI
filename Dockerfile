@@ -11,6 +11,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+
+# Limitar paralelismo de compilación para evitar OOM en servidores con poca RAM
+ENV CMAKE_BUILD_PARALLEL_LEVEL=1
+ENV MAKEFLAGS="-j1"
+
 RUN pip install --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt
 
