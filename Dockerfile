@@ -39,11 +39,6 @@ COPY . .
 # Directorio para archivos de medios y estáticos
 RUN mkdir -p /app/media /app/staticfiles
 
-# Usuario no-root por seguridad
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-RUN chown -R appuser:appgroup /app
-USER appuser
-
 EXPOSE 8000
 
 # Gunicorn como servidor WSGI
